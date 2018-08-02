@@ -3,6 +3,8 @@ package TestDemo;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
@@ -11,6 +13,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Vector;
+
+import javax.swing.CellEditor;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -19,6 +24,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
@@ -26,13 +34,15 @@ import javax.swing.table.TableColumn;
 import com.Model.ConectDb;
 
 public class TestDemo extends JFrame {
-	private JPanel panel;
+	private JPanel panel,panel2;
 	private JTable table;
 	//private Object data[][] ;
 	private JScrollPane scrollPane;
 	//private JButton button ;
 	private JCheckBox box;
 	private 	TableColumn tableColumn;
+	private JButton button;
+	private JTableHeader header;
 	public TestDemo() {
 		
 		// TODO Auto-generated constructor stub
@@ -40,51 +50,129 @@ public class TestDemo extends JFrame {
 		add(panel,BorderLayout.NORTH);*/
 		panel = new JPanel();
 		panel.setPreferredSize(new Dimension(200, 300));
-		/*data= new Object[][]
-			
-	   {
-		{"demo_1",true,2440},
-		{"demo_2",false,2110},
-		{"demo_2",true,2230}		
-		};
-		String title[] =
-			{
-				"name","result","sail"	
-			};
-		table = new JTable(data, title);
-		table.setAutoCreateRowSorter(true);
-		scrollPane = new JScrollPane(table);
-		button = new JButton("打印");
-		button.setPreferredSize(new Dimension(100, 20));
-		button.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				try {
-					table.print();
-				} catch (PrinterException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-			}
-		});
-		panel.add(scrollPane);
-		panel.add(button);*/
+		button = new JButton("删除");
+		button.setPreferredSize(new Dimension(100, 30));
+		panel2 = new JPanel();
+	    panel2.add(button);
+		
 		AbstractTableModel model = new Mytablemodel();
 		box = new JCheckBox();
 		table = new JTable(model);
-		table.getTableHeader().setDefaultRenderer(new CheckHeaderCellRenderer(table));
+		//table.getTableHeader().setDefaultRenderer(new CheckHeaderCellRenderer(table));
 		table.setAutoCreateRowSorter(true);
 		System.out.println(table.getSelectedRows()+","+table.getSelectedColumns());
 		//table.setRowSelectionAllowed(false);
-		table.setColumnSelectionAllowed(true);
+		table.setColumnSelectionAllowed(false);
+			table.addMouseListener(new MouseAdapter() {
+			
+			 @Override
+			public void mouseClicked(MouseEvent es) 
+			 {
+				// TODO Auto-generated method stub
+				 
+				button.addActionListener(new ActionListener() {
+					
+					@Override
+					public void actionPerformed(ActionEvent e)
+					{
+						// TODO Auto-generated method stub
+						
+						//System.out.println(table.rowAtPoint(es.getPoint()));
+						int column =table.columnAtPoint(es.getPoint());
+						if(column==0)
+						{
+							table.setColumnSelectionAllowed(true);
+							if((boolean) table.getValueAt(table.rowAtPoint(es.getPoint()), table.columnAtPoint(es.getPoint())))
+							System.out.print(table.rowAtPoint(es.getPoint())+",");
+							table.setValueAt(false, table.rowAtPoint(es.getPoint()), table.columnAtPoint(es.getPoint()));
+							
+						}
+						
+					}
+				});
+				
+				/*table.getTableHeader().addMouseListener(new MouseAdapter() 
+				{
+					 @Override
+					public void mouseClicked(MouseEvent se) {
+						// TODO Auto-generated method stub
+						//super.mouseClicked(e);
+						 int columns = table.getTableHeader().columnAtPoint(se.getPoint());
+						 if(columns==0)
+						 {
+							 button.addActionListener(new ActionListener() {
+								
+								@Override
+								public void actionPerformed(ActionEvent e) 
+								{
+									// TODO Auto-generated method stub
+									if((boolean) table.getValueAt(table.rowAtPoint(es.getPoint()), table.columnAtPoint(es.getPoint())))
+										System.out.print(table.rowAtPoint(es.getPoint())+",");
+										table.setValueAt(false, table.rowAtPoint(es.getPoint()), table.columnAtPoint(es.getPoint()));
+										
+								}
+							});
+						 }
+					}
+					
+				});*/
+				
+				
+			 }
+			
+		});
+	    //
 	
+		/*header =table.getTableHeader();
+		header.addMouseListener(new MouseAdapter() 
+		{
+               @Override
+            public void mouseClicked(MouseEvent se) 
+            {
+            	// TODO Auto-generated method stub
+            	int column = header.columnAtPoint(se.getPoint());
+            	if (column ==0)
+            	{
+            	 header.getTable().addMouseListener(
+            			 new MouseAdapter() 
+            	  {
+            		 
+            		    public void mouseClicked(MouseEvent es) 
+            		    {
+            		    	
+            		    	button.addActionListener(new ActionListener() 
+            		    	{
+            					
+            					@Override
+            					public void actionPerformed(ActionEvent e)
+            					{
+            						// TODO Auto-generated method stub
+            						
+            						//System.out.println(table.rowAtPoint(es.getPoint()));
+            						int column =table.columnAtPoint(es.getPoint());
+            						if(column==0)
+            						{
+            							table.setColumnSelectionAllowed(true);
+            							if((boolean) table.getValueAt(table.rowAtPoint(es.getPoint()), table.columnAtPoint(es.getPoint())))
+            							System.out.print(table.rowAtPoint(es.getPoint())+",");
+            							table.setValueAt(false, table.rowAtPoint(es.getPoint()), table.columnAtPoint(es.getPoint()));
+            						}
+            					}
+            				}
+            		   
+            		    );	
+            		    }
+				  });	
+            		
+            	
+            	}
+            }
 		
+		});*/
 		
 		//box = new JCheckBox();
         tableColumn =table.getColumnModel().getColumn(0);
+        
        /* tableColumn.setResizable(false);
         tableColumn.setPreferredWidth(200);*/
         //tableColumn.setCellEditor(table.getDefaultEditor(Boolean.class));
@@ -92,7 +180,8 @@ public class TestDemo extends JFrame {
        // tableColumn.setCellEditor(new DefaultCellEditor(box));
 		scrollPane = new JScrollPane(table);
 		panel.add(scrollPane);
-		add(panel,BorderLayout.CENTER);
+        add(panel,BorderLayout.CENTER);
+		add(panel2,BorderLayout.SOUTH);
 		//
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -106,9 +195,8 @@ public class TestDemo extends JFrame {
         new TestDemo();
         
 	}
-
+	
 }
-
 /*public class TestDemo  {
 
   private JFrame frame ;
@@ -128,6 +216,7 @@ public static void main(String[] args)
 
 }*/
 
+//
 
 //表格模型
 
@@ -139,7 +228,7 @@ class Mytablemodel extends AbstractTableModel
 	 */
 	private static final long serialVersionUID = 1L;
 	//
-	 private Vector<Object> vector1;
+	 private Vector<String> vector1;
 	Vector<Vector<Object>> vector2;
 	 private OperationDb operationDb;
 	 String sql;
@@ -191,7 +280,9 @@ class Mytablemodel extends AbstractTableModel
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// TODO Auto-generated method stub
-		return true;
+		if(columnIndex==0)
+			return true;
+		return false;
 	}
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
@@ -209,11 +300,13 @@ class Mytablemodel extends AbstractTableModel
 	
 	public void selectAllOrNull(Object result)
 	{
-		for(int i=0;i<getRowCount()-1;i++)
+		for(int i=0;i<getRowCount();i++)
 		{
-			setValueAt(result, i, getColumnCount()-1);
+			setValueAt(result, i, 0);
 		}
 	}
+	//
+	
    
 }
 
@@ -264,7 +357,8 @@ class CheckHeaderCellRenderer implements TableCellRenderer
 		label.setHorizontalAlignment(SwingConstants.CENTER);
 		jCheckBox.setHorizontalAlignment(SwingConstants.CENTER);
         jCheckBox.setBorderPainted(true);
-		JComponent component = (column ==0) ?jCheckBox:label;
+		/*JComponent component = (column ==0) ?jCheckBox:label;*/
+        JComponent component = label;
 		component.setForeground(tableHeader.getForeground());
         component.setBackground(tableHeader.getBackground());
         component.setFont(tableHeader.getFont());
@@ -354,11 +448,6 @@ class OperationDb
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		
-		
-		
 	}
-
-
 }
 
