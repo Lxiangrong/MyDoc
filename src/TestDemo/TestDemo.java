@@ -229,7 +229,7 @@ class Mytablemodel extends AbstractTableModel
 	private static final long serialVersionUID = 1L;
 	//
 	 private Vector<String> vector1;
-	Vector<Vector<Object>> vector2;
+	 Vector<Vector<Object>> vector2;
 	 private OperationDb operationDb;
 	 String sql;
 	 
@@ -247,7 +247,7 @@ class Mytablemodel extends AbstractTableModel
 		 vector1.add("保管期限");
 		 //vector1.add("备注");
 		 operationDb = new OperationDb();
-		 sql ="select top 10 t.ArchiveDuty,t.ArchiveNO,t.ArchiveTitle,t.ReceiveTime,t.PageCount,t.SaveLevel from T_Base_Archive t order by id desc";
+		 sql ="select top 10 t.ArchiveDuty as 责任者 ,t.ArchiveNO as 文件字号 ,t.ArchiveTitle as 题名,t.ReceiveTime as 文件日期 ,t.PageCount as 页数,t.SaveLevel as 保管期限  from T_Base_Archive t order by id desc";
 		 vector2 =operationDb.getresult(sql);
 	     System.out.println(vector2.size());
 	 
@@ -344,8 +344,6 @@ class CheckHeaderCellRenderer implements TableCellRenderer
 			    }   
 		   });
 	   }
-	
-	
 	
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
