@@ -8,6 +8,8 @@ import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -18,9 +20,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.TableColumn;
-
 import com.Contrl.FileCenterDboperation;
 import com.Contrl.FileCenterTable;
 
@@ -172,7 +174,9 @@ class CenterfilePanel extends JPanel
 		//
 		sqlstament ="select top 38 t.ArchiveDuty as 责任者 ,t.ArchiveNO as 文件字号 ,t.ArchiveTitle as 题名,t.ReceiveTime as 文件日期 ,t.PageCount as 页数,t.SaveLevel as 保管期限  from T_Base_Archive t order by id desc";
 		table = new JTable();
+		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		InitTable(table, sqlstament);
+		TableEvent(table,sq);
 		table.setPreferredScrollableViewportSize(new Dimension((int)dimension.getWidth()-FileCenterPanel.width-250, (int)dimension.getHeight()-100));
 		scrollPane = new JScrollPane(table);
 		//
@@ -196,7 +200,39 @@ class CenterfilePanel extends JPanel
 		 tableColumn.setPreferredWidth(550);
 		
 	 }
-	
+	//
+	 public void TableEvent(JTable table,JButton buttons)
+	 {
+ 
+		 //
+		table.addMouseListener(new MouseAdapter() 
+		{
+	      @Override
+	    public void mouseClicked(MouseEvent es)
+	      {
+	    	// TODO Auto-generated method stub
+	    	super.mouseClicked(es);
+	    	buttons.addActionListener(new ActionListener()
+	    	{
+			
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					// TODO Auto-generated method stub
+				 
+				 int column = table.columnAtPoint(es.getPoint());
+				 int row = table.rowAtPoint(es.getPoint());
+			     if(column==0)
+			     {
+			      
+			     }
+			     
+				}
+			});
+	    }	
+		});
+		 
+	 }
 }
 //
 class OtherfilePanel extends JPanel
@@ -212,6 +248,7 @@ class OtherfilePanel extends JPanel
 		setBackground(Color.cyan);
 	}
 	
+	//
 
 
 

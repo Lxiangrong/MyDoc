@@ -98,6 +98,31 @@ public class FileCenterDboperation
 	   return columnname;
    }
    
+  //
+   public boolean DeleteData(String parameter,String parameter2)
+   {
+	   boolean resultes = false;
+	   try 
+	   {
+		   connection = ConectDbs.GetConnect();
+		   String sqlstament ="delete  T_Base_Archive t where t.ArchiveTitle =' "+parameter+"' and t.ArchiveNO =' "+parameter2+"'";
+		   if(connection!=null)
+		   {
+			   preparedStatement = connection.prepareStatement(sqlstament);
+			   resultes =preparedStatement.execute();
+		   }  
+	  } catch (Exception e) 
+	   {
+		// TODO: handle exception
+		e.printStackTrace();
+	  }finally 
+	   {
+		  closeall();  
+	   } 
+	   return resultes;
+	   
+   }
+   
 	
    //
    public void closeall()
