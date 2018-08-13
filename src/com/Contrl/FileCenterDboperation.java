@@ -32,6 +32,17 @@ public class FileCenterDboperation
 	   columnname = new Vector<>();
    }
    //
+      public FileCenterDboperation() 
+      {
+		// TODO Auto-generated constructor stub
+      ConectDbs = new ConectDb();
+   	   //connection = ConectDbs.GetConnect();
+   	   result = new Vector<>();
+   	  // this.sqlstament =sqlstament;
+   	   columnname = new Vector<>();
+    	  
+	  }
+   //
    public Vector<Vector<Object>> getresultset()
    {
 	   
@@ -105,11 +116,13 @@ public class FileCenterDboperation
 	   try 
 	   {
 		   connection = ConectDbs.GetConnect();
-		   String sqlstament ="delete  T_Base_Archive t where t.ArchiveTitle =' "+parameter+"' and t.ArchiveNO =' "+parameter2+"'";
+		   String sqlstament ="delete  T_Base_Archive  where ArchiveTitle ='"+parameter+"' and ArchiveNO ='"+parameter2+"'";
 		   if(connection!=null)
 		   {
+			   //System.out.println(sqlstament);
 			   preparedStatement = connection.prepareStatement(sqlstament);
 			   resultes =preparedStatement.execute();
+			   System.out.println(resultes);
 		   }  
 	  } catch (Exception e) 
 	   {

@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -130,6 +131,7 @@ class CenterfilePanel extends JPanel
 	{
 		// TODO Auto-generated constructor stub
 		//Cpanel = new JPanel();
+		sqlstament ="select top 38 t.ArchiveDuty as 责任者 ,t.ArchiveNO as 文件字号 ,t.ArchiveTitle as 题名,t.ReceiveTime as 文件日期 ,t.PageCount as 页数,t.SaveLevel as 保管期限  from T_Base_Archive t order by id desc";
 		initpanel();
 		
 	}
@@ -172,7 +174,6 @@ class CenterfilePanel extends JPanel
 		label.setPreferredSize(new Dimension((int)dimension.getWidth()-FileCenterPanel.width-250, imageIcon.getIconHeight()));
 		label.setOpaque(true);	
 		//
-		sqlstament ="select top 38 t.ArchiveDuty as 责任者 ,t.ArchiveNO as 文件字号 ,t.ArchiveTitle as 题名,t.ReceiveTime as 文件日期 ,t.PageCount as 页数,t.SaveLevel as 保管期限  from T_Base_Archive t order by id desc";
 		table = new JTable();
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		InitTable(table, sqlstament);
@@ -203,8 +204,8 @@ class CenterfilePanel extends JPanel
 	//
 	 public void TableEvent(JTable table,JButton buttons)
 	 {
- 
-		 //
+		 FileCenterDboperation fileCenterDboperation = new FileCenterDboperation();
+		
 		table.addMouseListener(new MouseAdapter() 
 		{
 	      @Override
@@ -212,27 +213,45 @@ class CenterfilePanel extends JPanel
 	      {
 	    	// TODO Auto-generated method stub
 	    	super.mouseClicked(es);
+	    	 int rows[] = table.getSelectedRows();
+	    	 int column = table.columnAtPoint(es.getPoint());
 	    	buttons.addActionListener(new ActionListener()
-	    	{
-			
+	    	{	
 				@Override
 				public void actionPerformed(ActionEvent e) 
 				{
 					// TODO Auto-generated method stub
-				 
-				 int column = table.columnAtPoint(es.getPoint());
-				 int row = table.rowAtPoint(es.getPoint());
-			     if(column==0)
-			     {
-			      
-			     }
-			     
+			            	 if(column==0)
+			            	 {
+			            		 for(int i:rows)
+			            		 {
+			            			if((boolean)table.getValueAt(i, column))
+			            			{
+			            			/* System.out.println(table.getValueAt(i, 3)+"row is :"+i);
+			            			 */
+			            				String temp1 = table.getValueAt(i, 3).toString();
+			            				String temp2 = table.getValueAt(i, 2).toString();
+			            				if(fileCenterDboperation.DeleteData(temp1, temp2))
+			            				{
+			            					System.out.println(temp1+","+temp2);
+			            					JOptionPane.showMessageDialog(new JPanel(), "删除成功"," ", JOptionPane.WARNING_MESSAGE);
+			            				    table.updateUI();
+			            				}
+			            			}
+			            		 }
+			            	 }
 				}
 			});
 	    }	
 		});
-		 
+		  
 	 }
+	 
+/*	 //
+	 public void UpdateTable(JTable table)
+	 {
+		 
+	 }*/
 }
 //
 class OtherfilePanel extends JPanel
