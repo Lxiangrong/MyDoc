@@ -8,9 +8,10 @@ import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Vector;
+
+import javax.sound.sampled.LineListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -23,6 +24,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumn;
 import com.Contrl.FileCenterDboperation;
 import com.Contrl.FileCenterTable;
@@ -40,6 +43,7 @@ public class FileCenterPanel extends JPanel
 	private CardLayout cardLayout;
     public static String menuname ="文书文件";
     public static int width;
+    private ArrayList<String> list;
     //private JTable table;
 	
 	public FileCenterPanel() 
@@ -118,20 +122,23 @@ class CenterfilePanel extends JPanel
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private FlowLayout layout,layout2;
-	private JLabel label,label2;
-	private ImageIcon imageIcon,idj,icx,igd,isq;
+	private FlowLayout layout2;
+	private JLabel label,label2,label3;
+	private ImageIcon imageIcon,idj,icx,igd,isq,dIcon;
 	private Dimension dimension;
 	private JButton dj,cx,gd,sq;
 	private JTable table;
 	private JScrollPane scrollPane;
 	private String sqlstament;
+	private FileCenterDboperation fileCenterDboperation;
+	private  boolean result = false;
+	private int num=0;
 	//
 	public CenterfilePanel() 
 	{
 		// TODO Auto-generated constructor stub
 		//Cpanel = new JPanel();
-		sqlstament ="select top 38 t.ArchiveDuty as 责任者 ,t.ArchiveNO as 文件字号 ,t.ArchiveTitle as 题名,t.ReceiveTime as 文件日期 ,t.PageCount as 页数,t.SaveLevel as 保管期限  from T_Base_Archive t order by id desc";
+		sqlstament ="select top 36 t.ArchiveDuty as 责任者 ,t.ArchiveNO as 文件字号 ,t.ArchiveTitle as 题名,t.ReceiveTime as 文件日期 ,t.PageCount as 页数,t.SaveLevel as 保管期限  from T_Base_Archive t order by id desc";
 		initpanel();
 		
 	}
@@ -144,6 +151,7 @@ class CenterfilePanel extends JPanel
 		icx = new ImageIcon("Images/cx.gif");
 		igd = new ImageIcon("Images/gd.gif");
 		isq = new ImageIcon("Images/sq.gif");
+		dIcon =new ImageIcon("Images/bc.gif");
 		//
 		dj = new JButton(idj);
 		dj.setPreferredSize(new Dimension(idj.getIconWidth(), idj.getIconHeight()));
@@ -166,30 +174,36 @@ class CenterfilePanel extends JPanel
 		label2.add(gd);
 		label2.add(sq);
 		//
-		layout = new FlowLayout();
+		/*layout = new FlowLayout();
 		layout.setVgap(0);
-		layout.setHgap(10);
+		layout.setHgap(10);*/
 		imageIcon = new ImageIcon("Images/middle_right_tb.gif");
 		label =new JLabel("您现在的位置:文件管理>"+FileCenterPanel.menuname, imageIcon,SwingConstants.LEFT );	
 		label.setPreferredSize(new Dimension((int)dimension.getWidth()-FileCenterPanel.width-250, imageIcon.getIconHeight()));
 		label.setOpaque(true);	
 		//
 		table = new JTable();
-		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		InitTable(table, sqlstament);
 		TableEvent(table,sq);
 		table.setPreferredScrollableViewportSize(new Dimension((int)dimension.getWidth()-FileCenterPanel.width-250, (int)dimension.getHeight()-100));
 		scrollPane = new JScrollPane(table);
 		//
+		label3 = new JLabel("", dIcon,SwingConstants.LEFT);
+		label3.setPreferredSize(new Dimension((int)dimension.getWidth()-FileCenterPanel.width-250, dIcon.getIconHeight()));
+		label3.setBackground(Color.yellow);
+		label3.setOpaque(true);
+		
+		//
 		this.add(label);
 		this.add(label2);
 		this.add(scrollPane);
+		this.add(label3);
 	}
 	
 	//
 	 public void InitTable(JTable table,String sqlstament)
 	 {
-		 FileCenterDboperation fileCenterDboperation = new FileCenterDboperation(sqlstament);
+		 fileCenterDboperation = new FileCenterDboperation(sqlstament);
 		 Vector<String>  title = fileCenterDboperation.getcolumnamees();
 		 Vector<Vector<Object>> data = fileCenterDboperation.getresultset();
 		 FileCenterTable fileCenterTable =new FileCenterTable(title, data);
@@ -201,57 +215,75 @@ class CenterfilePanel extends JPanel
 		 tableColumn.setPreferredWidth(550);
 		
 	 }
+	 public void updatetable(JTable table)
+	 {
+		 FileCenterDboperation fileCenterDboperation = new FileCenterDboperation(sqlstament);
+		 Vector<String>  title = fileCenterDboperation.getcolumnamees();
+		 Vector<Vector<Object>> data = fileCenterDboperation.getresultset();
+		 FileCenterTable fileCenterTable =new FileCenterTable(title, data);
+		 TableColumn tableColumn;
+		 table.setModel(fileCenterTable); 
+		 table.getTableHeader().setResizingAllowed(false);
+		 table.getTableHeader().setReorderingAllowed(false);
+		 tableColumn = table.getColumnModel().getColumn(3);
+		 tableColumn.setPreferredWidth(550);
+		 
+	 }
+	
+	
 	//
 	 public void TableEvent(JTable table,JButton buttons)
 	 {
-		 FileCenterDboperation fileCenterDboperation = new FileCenterDboperation();
 		
-		table.addMouseListener(new MouseAdapter() 
-		{
-	      @Override
-	    public void mouseClicked(MouseEvent es)
-	      {
-	    	// TODO Auto-generated method stub
-	    	super.mouseClicked(es);
-	    	 int rows[] = table.getSelectedRows();
-	    	 int column = table.columnAtPoint(es.getPoint());
-	    	buttons.addActionListener(new ActionListener()
-	    	{	
+		 table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+	     table.getModel().addTableModelListener(new TableModelListener() {	
+			@Override
+			public void tableChanged(TableModelEvent e) 
+			{
+				// TODO Auto-generated method stub
+				int rows = table.getRowCount();
+			   buttons.addActionListener(new ActionListener() {
+				
 				@Override
-				public void actionPerformed(ActionEvent e) 
-				{
+				public void actionPerformed(ActionEvent e) {
 					// TODO Auto-generated method stub
-			            	 if(column==0)
-			            	 {
-			            		 for(int i:rows)
-			            		 {
-			            			if((boolean)table.getValueAt(i, column))
-			            			{
-			            			/* System.out.println(table.getValueAt(i, 3)+"row is :"+i);
-			            			 */
-			            				String temp1 = table.getValueAt(i, 3).toString();
-			            				String temp2 = table.getValueAt(i, 2).toString();
-			            				if(fileCenterDboperation.DeleteData(temp1, temp2))
-			            				{
-			            					System.out.println(temp1+","+temp2);
-			            					JOptionPane.showMessageDialog(new JPanel(), "删除成功"," ", JOptionPane.WARNING_MESSAGE);
-			            				    table.updateUI();
-			            				}
-			            			}
-			            		 }
-			            	 }
+					for(int i=0;i<rows;i++)
+					{
+						if((boolean)table.getValueAt(i,0))
+						{
+							//System.out.println(table.getValueAt(i, 3)+","+i);
+						   String title =(String)table.getValueAt(i, 3);
+						   String ArchiveNO = (String)table.getValueAt(i, 2);
+						   //System.out.println(title+","+ArchiveNO+","+i);
+						   if(fileCenterDboperation!=null)
+						   {
+							  result=fileCenterDboperation.DeleteData(title, ArchiveNO);
+							  if(result)
+							  {
+								 num++; 
+							  }
+						   }
+						
+						}
+						
+						table.setValueAt(false, i, 0);
+					}
+					 if(num>0)
+				      {
+				    	  JOptionPane.showMessageDialog(new JPanel(), "删除成功", "", JOptionPane.WARNING_MESSAGE);
+				    	  updatetable(table);  
+				    	  num=0;
+				      }
+					
 				}
 			});
-	    }	
+			     
+				
+			}
 		});
-		  
+	      
 	 }
 	 
-/*	 //
-	 public void UpdateTable(JTable table)
-	 {
-		 
-	 }*/
 }
 //
 class OtherfilePanel extends JPanel

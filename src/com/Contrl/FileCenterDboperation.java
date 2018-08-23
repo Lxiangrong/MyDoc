@@ -121,7 +121,11 @@ public class FileCenterDboperation
 		   {
 			   //System.out.println(sqlstament);
 			   preparedStatement = connection.prepareStatement(sqlstament);
-			   resultes =preparedStatement.execute();
+			   int resultnum =preparedStatement.executeUpdate();
+			   if(resultnum>0)
+			   {
+				   resultes=true;
+			   }
 			   System.out.println(resultes);
 		   }  
 	  } catch (Exception e) 
