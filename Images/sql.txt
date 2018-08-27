@@ -1,0 +1,58 @@
+USE [ELEDoc]
+GO
+/****** Object:  StoredProcedure [dbo].[filecenterfenye]    Script Date: 08/27/2018 12:46:47 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER proc [dbo].[filecenterfenye]
+@p_name varchar(200),--表名
+@p_pagesize int = 37,--每页显示
+@p_pagenow int ,--当前页
+@p_columns varchar(2000),--显示列
+@p_order varchar(200), --排序列
+@p_pagecount int output --总页数
+as 
+if not exists(select * from sysobjects where OBJECTPROPERTY(OBJECT_ID(@p_name),'isusertable')=1)
+begin
+RAISERROR(N'对象"%s"不存在',1,16,@p_name)
+ return
+end
+--
+IF OBJECTPROPERTY(OBJECT_ID(@p_name),N'IsTable')=0
+    AND OBJECTPROPERTY(OBJECT_ID(@p_name),N'IsView')=0
+    AND OBJECTPROPERTY(OBJECT_ID(@p_name),N'IsTableFunction')=0
+BEGIN
+    RAISERROR(N'"%s"不是表、视图或者表值函数',1,16,@p_name)
+    RETURN
+END
+-- 
+ if ISNULL(@p_pagesize,0)<1 set @p_pagesize=37
+ if ISNULL(@p_pagenow,0)<1 set @p_pagenow=1
+ if ISNULL(@p_columns,N'')=N'' set @p_columns='*'
+begin
+ set nocount on
+  declare @p_Sql nvarchar(2000)
+  declare @p_top int 
+  declare @p_top2 int
+  select @p_top =@p_pagesize
+  --'select '+CONVERT(varchar,@p_pagecount)+'='+ CONVERT(varchar,count(*))+'from '+@p_name
+   set @p_Sql =N'select @p_pagecount = count(*) from '+@p_name
+   print @p_sql
+   exec sp_executesql @p_sql,N'@p_pagecount int output',@p_pagecount output 
+  --
+  if @p_pagenow=1
+  begin
+   set @p_Sql ='select  top '+CONVERT(varchar,@p_top)+' '+@p_columns+' from '+@p_name+' order by '+@p_order+' desc'
+  -- print @p_sql
+   exec(@p_Sql)
+  end
+  else
+  begin
+   select @p_top2 =@p_pagesize*@p_pagenow
+   set @p_Sql = 'select top '+CONVERT(varchar,@p_top)+' '+@p_columns+' from (select  top '+CONVERT(varchar,@p_top2)+'ROW_NUMBER() over(order  by '+ @p_order +' desc) row_num'+','+@p_columns+' from '+@p_name+' ) t order by t.row_num desc'
+   print @p_sql
+   exec(@p_Sql)
+  end
+end
+
