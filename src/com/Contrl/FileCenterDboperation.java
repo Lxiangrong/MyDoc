@@ -1,12 +1,12 @@
 package com.Contrl;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.Vector;
 
-import javax.swing.table.TableRowSorter;
 
 import com.Model.ConectDb;
 
@@ -15,12 +15,12 @@ public class FileCenterDboperation
    private Connection connection;
    private ConectDb  ConectDbs; 
    private Vector<Vector<Object> > result;
-   private boolean resuts;
-   private ResultSet resultSet;
+   private ResultSet resultSet,resultSet2;
    private PreparedStatement preparedStatement;
    private ResultSetMetaData metaData;
    private String sqlstament;
    private Vector<String> columnname;
+   private CallableStatement callableStatement;
    //
    public FileCenterDboperation(String sqlstament) 
    {
@@ -31,6 +31,7 @@ public class FileCenterDboperation
 	   this.sqlstament =sqlstament;
 	   columnname = new Vector<>();
    }
+   
    //
       public FileCenterDboperation() 
       {
@@ -42,8 +43,57 @@ public class FileCenterDboperation
    	   columnname = new Vector<>();
     	  
 	  }
+     //
+     public Vector<Vector<Object>> getResultset(String tablename,String columns,String keywords,int pagesize,int pagenow,int pagecount)
+     {
+    	 
+    	 try 
+    	 {
+			connection=ConectDbs.GetConnect();
+			if(connection!=null)
+			{
+				callableStatement=connection.prepareCall("{call filecenterfenye (?,?,?,?,?,?)}");
+				callableStatement.setString(1, tablename);
+				callableStatement.setInt(2, pagesize);
+				callableStatement.setInt(3, pagenow);
+				callableStatement.setString(4, columns);
+				//System.out.println(columns);
+				callableStatement.setString(5, keywords);
+				callableStatement.registerOutParameter(6, java.sql.Types.INTEGER);
+				resultSet =callableStatement.executeQuery();
+				metaData =resultSet.getMetaData();
+				int numcolumns = metaData.getColumnCount();
+				while(resultSet.next())
+				{
+
+					   Vector<Object> temp = new Vector<>();
+					   temp.add(false);
+					   for(int i=1;i<=numcolumns;i++)
+					   {
+						   temp.add(resultSet.getString(i));
+					   }
+					   result.add(temp);
+				}
+				
+				pagecount =callableStatement.getInt(6);
+				
+			}
+    		 
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}finally
+    	 {
+			closeall();
+    	 }
+    	 return result;
+    	 	 
+     }
+      
+      
+      
    //
-   public Vector<Vector<Object>> getresultset()
+  /* public Vector<Vector<Object>> getresultset()
    {
 	   
 	   try {
@@ -76,7 +126,7 @@ public class FileCenterDboperation
 	  }
 	   
 	   return result;
-   }
+   }*/
    
    //
    public Vector<String> getcolumnamees()
@@ -145,12 +195,16 @@ public class FileCenterDboperation
    public void closeall()
    {   
 	   try {
-		   if(resultSet!=null)
-			   resultSet.close();
-		   if(preparedStatement!=null)
-			   preparedStatement.close();
+		   
 		   if(connection!=null)
 			   connection.close();
+		   if(callableStatement!=null)
+			   callableStatement.close();
+		   if(preparedStatement!=null)
+			   preparedStatement.close();
+		   if(resultSet!=null)
+			   resultSet.close();
+		   
 		
 	} catch (Exception e) {
 		// TODO: handle exception

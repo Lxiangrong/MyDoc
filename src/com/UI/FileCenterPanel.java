@@ -3,10 +3,12 @@ package com.UI;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.TableModelEvent;
@@ -46,7 +49,6 @@ public class FileCenterPanel extends JPanel
 	private CardLayout cardLayout;
     public static String menuname ="文书文件";
     public static int width;
-    private ArrayList<String> list;
     //private JTable table;
 	
 	public FileCenterPanel() 
@@ -126,18 +128,20 @@ class CenterfilePanel extends JPanel
 	 */
 	private static final long serialVersionUID = 1L;
 	private FlowLayout layout2;
-	private JLabel label,label2,label3;
+	private JLabel label,label2;
 	private ImageIcon imageIcon,idj,icx,igd,isq,dIcon;
 	private Dimension dimension;
-	private JButton dj,cx,gd,sq;
+	private JButton dj,cx,gd,sq,button,button2,button3,button4,button5,button6;
 	private JTable table;
 	private JScrollPane scrollPane;
 	private String sqlstament;
 	private FileCenterDboperation fileCenterDboperation;
 	private  boolean result = false;
-	private int num=0;
+	private int num=0,size=0;
 	private GridBagLayout gridBagLayout;
 	private GridBagConstraints gridBagConstraints;
+	private JPanel panel;
+	private JTextField textField,textField2;
 	//
 	public CenterfilePanel() 
 	{
@@ -154,6 +158,7 @@ class CenterfilePanel extends JPanel
 		dimension = Toolkit.getDefaultToolkit().getScreenSize();
 		gridBagLayout = new GridBagLayout();
 		gridBagConstraints = new GridBagConstraints();
+		setLayout(gridBagLayout);
 		idj = new ImageIcon("Images/dj.gif");
 		icx = new ImageIcon("Images/cx.gif");
 		igd = new ImageIcon("Images/gd.gif");
@@ -168,6 +173,7 @@ class CenterfilePanel extends JPanel
 		gd.setPreferredSize(new Dimension(igd.getIconWidth(), igd.getIconHeight()));
 		sq = new JButton(isq);
 		sq.setPreferredSize(new Dimension(isq.getIconWidth(), isq.getIconHeight()));
+	    
 		//Cpanel.setPreferredSize(new Dimension((int)dimension.getWidth()-FileCenterPanel.width-250, dj.getHeight()+30));
 		layout2 =new FlowLayout(FlowLayout.LEFT);
 		layout2.setVgap(0);
@@ -181,7 +187,6 @@ class CenterfilePanel extends JPanel
 		label2.add(gd);
 		label2.add(sq);
 		//
-		
 		imageIcon = new ImageIcon("Images/middle_right_tb.gif");
 		label =new JLabel("您现在的位置:文件管理>"+FileCenterPanel.menuname, imageIcon,SwingConstants.LEFT );	
 		label.setPreferredSize(new Dimension((int)dimension.getWidth()-FileCenterPanel.width-250, imageIcon.getIconHeight()));
@@ -193,55 +198,42 @@ class CenterfilePanel extends JPanel
 		table.setPreferredScrollableViewportSize(new Dimension((int)dimension.getWidth()-FileCenterPanel.width-250, (int)dimension.getHeight()-90));
 		scrollPane = new JScrollPane(table);
 		//
-		label3 = new JLabel("", dIcon,SwingConstants.LEFT);
-		label3.setPreferredSize(new Dimension((int)dimension.getWidth()-FileCenterPanel.width-250, dIcon.getIconHeight()));
-		label3.setOpaque(true);
+		 button = new JButton();
+		 button.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				// TODO Auto-generated method stub
+				 int  temp = Integer.valueOf(textField.getText());
+				 System.out.println(temp);
+				 if(temp!=1)
+				 {
+					 ChangeTable(table, temp);
+				 }
+				
+			}
+		});
+		 button2 = new JButton();
+		 button3 = new JButton();
+		 button4 = new JButton();
+		 button5 = new JButton();
+		 button6 = new JButton();
+		 textField =new JTextField();
+		 textField2 = new JTextField();
+		 panel = new FilecenterEndPanel(button, button2, button3, button4, button5, button6, textField, textField2,num, size);
+		 panel.setPreferredSize(new Dimension((int)dimension.getWidth()/2, 20));
 		//
-		 setLayout(gridBagLayout);
-		 gridBagConstraints.fill = GridBagConstraints.BOTH;
-		 gridBagConstraints.insets = new  InsetsUIResource(1, 1, 1, 1);
-		 gridBagConstraints.gridwidth=1;
-		 gridBagConstraints.gridheight=1;
-		 gridBagConstraints.weightx=100.0;
-		 gridBagConstraints.weighty=1.0;
-		 gridBagConstraints.gridx=0;
-		 gridBagConstraints.gridy=0;
-		 gridBagLayout.setConstraints(label,gridBagConstraints);
-		 //
-		 gridBagConstraints.fill = GridBagConstraints.BOTH;
-		 gridBagConstraints.insets = new  InsetsUIResource(1, 1, 1, 1);
-		 gridBagConstraints.gridwidth=1;
-		 gridBagConstraints.gridheight=1;
-		 gridBagConstraints.gridx=0;
-		 gridBagConstraints.gridy=1;
-		 gridBagConstraints.weightx=100.0;
-		 gridBagConstraints.weighty=4.0;
-		 gridBagLayout.setConstraints(label2,gridBagConstraints);
-		 //
-		 gridBagConstraints.fill = GridBagConstraints.BOTH;
-		 gridBagConstraints.insets = new  InsetsUIResource(1,1, 1, 1);
-		 gridBagConstraints.gridwidth=1;
-		 gridBagConstraints.gridheight=1;
-		 gridBagConstraints.gridx=0;
-		 gridBagConstraints.gridy=2;
-		 gridBagConstraints.weightx=100.0;
-		 gridBagConstraints.weighty=100.0;
-		 gridBagLayout.setConstraints(scrollPane,gridBagConstraints);
-		 //
-		 gridBagConstraints.fill = GridBagConstraints.BOTH;
-		 gridBagConstraints.insets = new  InsetsUIResource(1, 1, 1, 1);
-		 gridBagConstraints.gridwidth=1;
-		 gridBagConstraints.gridheight=1;
-		 gridBagConstraints.gridx=0;
-		 gridBagConstraints.gridy=3;
-		 gridBagConstraints.weightx=100.0;
-		 gridBagConstraints.weighty=1.0;
-		 gridBagLayout.setConstraints(label3,gridBagConstraints);
+		 setplace(label, gridBagLayout, gridBagConstraints, 0, 0, new Insets(1, 1, 1, 1), 100.0, 1.0, 1, 1);
+		 setplace(label2, gridBagLayout, gridBagConstraints, 0, 1, new Insets(1, 1, 1, 1), 100.0, 4.0, 1, 1);
+		 setplace(scrollPane, gridBagLayout, gridBagConstraints, 0, 2, new Insets(1, 1, 1, 1), 100.0, 100.0, 1, 1);
+	     setplace(panel, gridBagLayout, gridBagConstraints, 0, 3, new Insets(1, 1, 1, 1), 95.0,0.77, 1, 1);
+		 
 		 //
 		 this.add(label);
 		 this.add(label2);
 		 this.add(scrollPane);
-		 this.add(label3);
+		 this.add(panel);
 		 
 	}
 	
@@ -250,7 +242,7 @@ class CenterfilePanel extends JPanel
 	 {
 		 fileCenterDboperation = new FileCenterDboperation(sqlstament);
 		 Vector<String>  title = fileCenterDboperation.getcolumnamees();
-		 Vector<Vector<Object>> data = fileCenterDboperation.getresultset();
+		 Vector<Vector<Object>> data = fileCenterDboperation.getResultset("T_Base_Archive", "ArchiveDuty as 责任者 ,ArchiveNO as 文件字号 ,ArchiveTitle as 题名,ReceiveTime as 文件日期 ,PageCount as 页数,SaveLevel as 保管期限", "id", 37, 1, num);
 		 FileCenterTable fileCenterTable =new FileCenterTable(title, data);
 		 TableColumn tableColumn;
 		 table.setModel(fileCenterTable); 
@@ -262,9 +254,9 @@ class CenterfilePanel extends JPanel
 	 }
 	 public void updatetable(JTable table)
 	 {
-		 FileCenterDboperation fileCenterDboperation = new FileCenterDboperation(sqlstament);
-		 Vector<String>  title = fileCenterDboperation.getcolumnamees();
-		 Vector<Vector<Object>> data = fileCenterDboperation.getresultset();
+		 FileCenterDboperation fileCenterDboperations = new FileCenterDboperation(sqlstament);
+		 Vector<String>  title = fileCenterDboperations.getcolumnamees();
+		 Vector<Vector<Object>> data = fileCenterDboperations.getResultset("T_Base_Archive", "ArchiveDuty as 责任者 ,ArchiveNO as 文件字号 ,ArchiveTitle as 题名,ReceiveTime as 文件日期 ,PageCount as 页数,SaveLevel as 保管期限", "id", 37, 1, num);;
 		 FileCenterTable fileCenterTable =new FileCenterTable(title, data);
 		 TableColumn tableColumn;
 		 table.setModel(fileCenterTable); 
@@ -307,10 +299,8 @@ class CenterfilePanel extends JPanel
 							  {
 								 num++; 
 							  }
-						   }
-						
+						   }	
 						}
-						
 						table.setValueAt(false, i, 0);
 					}
 					 if(num>0)
@@ -322,12 +312,31 @@ class CenterfilePanel extends JPanel
 					
 				}
 			});
-			     
-				
+			     		
 			}
 		});
 	      
 	 }
+	 //
+		public void setplace(Component pComponent,GridBagLayout layout,GridBagConstraints gridBagConstraints,int x,int y,Insets insets,Double a,Double b,int c,int d)
+		{
+			gridBagConstraints.fill =GridBagConstraints.BOTH;
+			gridBagConstraints.insets = insets;
+			gridBagConstraints.gridx=x;
+			gridBagConstraints.gridy=y;
+			gridBagConstraints.weightx=a;
+			gridBagConstraints.weighty=b;
+			gridBagConstraints.gridwidth=c;
+			gridBagConstraints.gridheight=d;
+			layout.setConstraints(pComponent, gridBagConstraints);
+			
+		}
+		
+	//表格跳转页数
+	public void ChangeTable(JTable table,int pagenow)
+	{
+		
+	}
 	 
 }
 //
