@@ -20,7 +20,7 @@ public class LoginDecide
 	private ResultSet resultSet = null;
 	private Statement statement =null;
 	private boolean result =false;
-	public static String name;
+	public static String name = null;
 	
 	//
 	public LoginDecide()
@@ -37,7 +37,7 @@ public class LoginDecide
 			if(resultSet.next())
 			{
 				result=true;
-				this.name = username;
+				LoginDecide.name = username;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

@@ -35,6 +35,7 @@ import javax.swing.plaf.InsetsUIResource;
 import javax.swing.table.TableColumn;
 import com.Contrl.FileCenterDboperation;
 import com.Contrl.FileCenterTable;
+import com.Contrl.FileDatamanipulation;
 
 
 public class FileCenterPanel extends JPanel 
@@ -129,15 +130,15 @@ class CenterfilePanel extends JPanel
 	private static final long serialVersionUID = 1L;
 	private FlowLayout layout2;
 	private JLabel label,label2;
-	private ImageIcon imageIcon,idj,icx,igd,isq,dIcon;
+	private ImageIcon imageIcon,idj,icx,igd,isq;
 	private Dimension dimension;
 	private JButton dj,cx,gd,sq,button,button2,button3,button4,button5,button6;
 	private JTable table;
 	private JScrollPane scrollPane;
-	private String sqlstament;
-	private FileCenterDboperation fileCenterDboperation;
+	private FileDatamanipulation fileDatamanipulation;
+	private int pagesize,pagenow;
 	private  boolean result = false;
-	private int num=0,size=0;
+	private static int num=0,size=0;
 	private GridBagLayout gridBagLayout;
 	private GridBagConstraints gridBagConstraints;
 	private JPanel panel;
@@ -146,8 +147,8 @@ class CenterfilePanel extends JPanel
 	public CenterfilePanel() 
 	{
 		// TODO Auto-generated constructor stub
-		//Cpanel = new JPanel();
-		sqlstament ="select top 37 t.ArchiveDuty as 责任者 ,t.ArchiveNO as 文件字号 ,t.ArchiveTitle as 题名,t.ReceiveTime as 文件日期 ,t.PageCount as 页数,t.SaveLevel as 保管期限  from T_Base_Archive t order by id desc";
+		pagesize=37;
+		pagenow=1;
 		initpanel();
 		
 	}
@@ -163,7 +164,6 @@ class CenterfilePanel extends JPanel
 		icx = new ImageIcon("Images/cx.gif");
 		igd = new ImageIcon("Images/gd.gif");
 		isq = new ImageIcon("Images/sq.gif");
-		dIcon =new ImageIcon("Images/bc.gif");
 		//
 		dj = new JButton(idj);
 		dj.setPreferredSize(new Dimension(idj.getIconWidth(), idj.getIconHeight()));
@@ -193,11 +193,11 @@ class CenterfilePanel extends JPanel
 		label.setOpaque(true);	
 		//
 		table = new JTable();
-		InitTable(table, sqlstament);
+		InitTable(table);
 		TableEvent(table,sq);
 		table.setPreferredScrollableViewportSize(new Dimension((int)dimension.getWidth()-FileCenterPanel.width-250, (int)dimension.getHeight()-90));
 		scrollPane = new JScrollPane(table);
-		//
+		//文件中心底部面板组件初始化
 		 button = new JButton();
 		 button.addActionListener(new ActionListener() {
 			
@@ -205,8 +205,8 @@ class CenterfilePanel extends JPanel
 			public void actionPerformed(ActionEvent e) 
 			{
 				// TODO Auto-generated method stub
-				 int  temp = Integer.valueOf(textField.getText());
-				 System.out.println(temp);
+				 int  temp = Integer.parseInt(textField.getText());
+				// System.out.println(temp);
 				 if(temp!=1)
 				 {
 					 ChangeTable(table, temp);
@@ -237,38 +237,22 @@ class CenterfilePanel extends JPanel
 		 
 	}
 	
-	//
-	 public void InitTable(JTable table,String sqlstament)
+	//初始化表格
+	 public void InitTable(JTable table)
 	 {
-		 fileCenterDboperation = new FileCenterDboperation(sqlstament);
-		 Vector<String>  title = fileCenterDboperation.getcolumnamees();
-		 Vector<Vector<Object>> data = fileCenterDboperation.getResultset("T_Base_Archive", "ArchiveDuty as 责任者 ,ArchiveNO as 文件字号 ,ArchiveTitle as 题名,ReceiveTime as 文件日期 ,PageCount as 页数,SaveLevel as 保管期限", "id", 37, 1, num);
-		 FileCenterTable fileCenterTable =new FileCenterTable(title, data);
-		 TableColumn tableColumn;
-		 table.setModel(fileCenterTable); 
-		 table.getTableHeader().setResizingAllowed(false);
-		 table.getTableHeader().setReorderingAllowed(false);
-		 tableColumn = table.getColumnModel().getColumn(3);
-		 tableColumn.setPreferredWidth(550);
+		 //
+		 fileDatamanipulation = new FileDatamanipulation("T_Base_Archive");
+		 fileDatamanipulation.SetTable(table,"ArchiveDuty as 责任者 ,ArchiveNO as 文件字号 ,ArchiveTitle as 题名,ReceiveTime as 文件日期 ,PageCount as 页数,SaveLevel as 保管期限", "id",pagesize, pagenow);
 		
 	 }
+	 //删除数据后更新表
 	 public void updatetable(JTable table)
 	 {
-		 FileCenterDboperation fileCenterDboperations = new FileCenterDboperation(sqlstament);
-		 Vector<String>  title = fileCenterDboperations.getcolumnamees();
-		 Vector<Vector<Object>> data = fileCenterDboperations.getResultset("T_Base_Archive", "ArchiveDuty as 责任者 ,ArchiveNO as 文件字号 ,ArchiveTitle as 题名,ReceiveTime as 文件日期 ,PageCount as 页数,SaveLevel as 保管期限", "id", 37, 1, num);;
-		 FileCenterTable fileCenterTable =new FileCenterTable(title, data);
-		 TableColumn tableColumn;
-		 table.setModel(fileCenterTable); 
-		 table.getTableHeader().setResizingAllowed(false);
-		 table.getTableHeader().setReorderingAllowed(false);
-		 tableColumn = table.getColumnModel().getColumn(3);
-		 tableColumn.setPreferredWidth(550);
+		 
+		 InitTable(table);
 		 
 	 }
-	
-	
-	//
+	//表格数据删除操作
 	 public void TableEvent(JTable table,JButton buttons)
 	 {
 		
@@ -292,9 +276,9 @@ class CenterfilePanel extends JPanel
 						   String title =(String)table.getValueAt(i, 3);
 						   String ArchiveNO = (String)table.getValueAt(i, 2);
 						   //System.out.println(title+","+ArchiveNO+","+i);
-						   if(fileCenterDboperation!=null)
+						   if( fileDatamanipulation!=null)
 						   {
-							  result=fileCenterDboperation.DeleteData(title, ArchiveNO);
+							  result= fileDatamanipulation.DeleteData(title, ArchiveNO);
 							  if(result)
 							  {
 								 num++; 
@@ -309,7 +293,6 @@ class CenterfilePanel extends JPanel
 				    	  updatetable(table);  
 				    	  num=0;
 				      }
-					
 				}
 			});
 			     		
@@ -333,9 +316,20 @@ class CenterfilePanel extends JPanel
 		}
 		
 	//表格跳转页数
-	public void ChangeTable(JTable table,int pagenow)
+	public void ChangeTable(JTable table,int pagenows)
 	{
+		/* FileCenterDboperation fileCenterDboperations = new FileCenterDboperation(sqlstament);
+		 Vector<String>  title = fileCenterDboperations.getcolumnamees();
+		 Vector<Vector<Object>> data = fileCenterDboperations.getResultset("T_Base_Archive", "ArchiveDuty ,ArchiveNO,ArchiveTitle,ReceiveTime ,PageCount,SaveLevel", "id", 37, pagenow);;
+		 FileCenterTable fileCenterTable =new FileCenterTable(title, data);
+		 TableColumn tableColumn;
+		 table.setModel(fileCenterTable); 
+		 table.getTableHeader().setResizingAllowed(false);
+		 table.getTableHeader().setReorderingAllowed(false);
+		 tableColumn = table.getColumnModel().getColumn(3);
+		 tableColumn.setPreferredWidth(550);*/
 		
+		 
 	}
 	 
 }

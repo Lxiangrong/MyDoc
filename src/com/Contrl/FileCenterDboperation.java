@@ -44,7 +44,7 @@ public class FileCenterDboperation
     	  
 	  }
      //
-     public Vector<Vector<Object>> getResultset(String tablename,String columns,String keywords,int pagesize,int pagenow,int pagecount)
+     public Vector<Vector<Object>> getResultset(String tablename,String columns,String keywords,int pagesize,int pagenow)
      {
     	 
     	 try 
@@ -74,9 +74,7 @@ public class FileCenterDboperation
 					   }
 					   result.add(temp);
 				}
-				
-				pagecount =callableStatement.getInt(6);
-				
+		
 			}
     		 
 		} catch (Exception e) {
@@ -89,45 +87,36 @@ public class FileCenterDboperation
     	 return result;
     	 	 
      }
-      
-      
-      
-   //
-  /* public Vector<Vector<Object>> getresultset()
-   {
-	   
-	   try {
-		   connection =ConectDbs.GetConnect();
-		   if(connection!=null)
-		   {
-			   preparedStatement = connection.prepareStatement(sqlstament);
-			   resultSet = preparedStatement.executeQuery();
-			   metaData =resultSet.getMetaData();
-			   int columnnum = metaData.getColumnCount();
-			   while(resultSet.next())
-			   {
-				   Vector<Object> temp = new Vector<>();
-				   temp.add(false);
-				   for(int i=1;i<=columnnum;i++)
-				   {
-					   temp.add(resultSet.getString(i));
-				   }
-				   result.add(temp);
-			   }
-		   }
-		   	   
-	      } 
-	   catch (Exception e) {
-		// TODO: handle exception
-		e.printStackTrace();
-	  }finally{
-		  
-		  closeall();
-	  }
-	   
-	   return result;
-   }*/
-   
+     //获取总页数
+     public int  GetPageCount(String tablename)
+     {
+    	int pagecount=0;
+    	 try 
+    	 {
+			connection=ConectDbs.GetConnect();
+			if(connection!=null)
+			{
+				preparedStatement =connection.prepareStatement("select count(*) as pagecount from "+tablename);
+				resultSet = preparedStatement.executeQuery();
+				if(resultSet!=null)
+				{
+					while(resultSet.next())
+					{
+						pagecount =resultSet.getInt(1);
+					}
+				}
+			}
+    		 
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}finally
+    	 {
+			closeall();
+    	 }
+    	 return pagecount;
+     }
+
    //
    public Vector<String> getcolumnamees()
    {
