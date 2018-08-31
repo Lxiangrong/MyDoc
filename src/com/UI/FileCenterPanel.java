@@ -12,10 +12,6 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Vector;
-
-import javax.sound.sampled.LineListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -31,10 +27,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.plaf.InsetsUIResource;
-import javax.swing.table.TableColumn;
-import com.Contrl.FileCenterDboperation;
-import com.Contrl.FileCenterTable;
 import com.Contrl.FileDatamanipulation;
 
 
@@ -136,9 +128,9 @@ class CenterfilePanel extends JPanel
 	private JTable table;
 	private JScrollPane scrollPane;
 	private FileDatamanipulation fileDatamanipulation;
-	private int pagesize,pagenow;
+	private static int pagesize,pagenow,pagecount,pagerecord;
 	private  boolean result = false;
-	private static int num=0,size=0;
+	private  int num;
 	private GridBagLayout gridBagLayout;
 	private GridBagConstraints gridBagConstraints;
 	private JPanel panel;
@@ -206,12 +198,9 @@ class CenterfilePanel extends JPanel
 			{
 				// TODO Auto-generated method stub
 				 int  temp = Integer.parseInt(textField.getText());
-				// System.out.println(temp);
-				 if(temp!=1)
-				 {
-					 ChangeTable(table, temp);
-				 }
-				
+				 System.out.println(temp);
+				 //if(temp>0&&temp<pagecount)
+				 ChangeTable(table, temp,pagenow);	
 			}
 		});
 		 button2 = new JButton();
@@ -221,7 +210,10 @@ class CenterfilePanel extends JPanel
 		 button6 = new JButton();
 		 textField =new JTextField();
 		 textField2 = new JTextField();
-		 panel = new FilecenterEndPanel(button, button2, button3, button4, button5, button6, textField, textField2,num, size);
+		 //
+		 pagerecord =Setpages(pagerecord);
+		 pagecount =pagerecord/pagesize+1;
+		 panel = new FilecenterEndPanel(button, button2, button3, button4, button5, button6, textField, textField2,pagerecord, pagecount);
 		 panel.setPreferredSize(new Dimension((int)dimension.getWidth()/2, 20));
 		//
 		 setplace(label, gridBagLayout, gridBagConstraints, 0, 0, new Insets(1, 1, 1, 1), 100.0, 1.0, 1, 1);
@@ -316,22 +308,17 @@ class CenterfilePanel extends JPanel
 		}
 		
 	//表格跳转页数
-	public void ChangeTable(JTable table,int pagenows)
+	public void ChangeTable(JTable table,int pagenows,int paagesize)
 	{
-		/* FileCenterDboperation fileCenterDboperations = new FileCenterDboperation(sqlstament);
-		 Vector<String>  title = fileCenterDboperations.getcolumnamees();
-		 Vector<Vector<Object>> data = fileCenterDboperations.getResultset("T_Base_Archive", "ArchiveDuty ,ArchiveNO,ArchiveTitle,ReceiveTime ,PageCount,SaveLevel", "id", 37, pagenow);;
-		 FileCenterTable fileCenterTable =new FileCenterTable(title, data);
-		 TableColumn tableColumn;
-		 table.setModel(fileCenterTable); 
-		 table.getTableHeader().setResizingAllowed(false);
-		 table.getTableHeader().setReorderingAllowed(false);
-		 tableColumn = table.getColumnModel().getColumn(3);
-		 tableColumn.setPreferredWidth(550);*/
-		
-		 
+		fileDatamanipulation = new FileDatamanipulation("T_Base_Archive");
+		fileDatamanipulation.ChoseData(table, pagenows); 
 	}
-	 
+	//设置总页数、总记录数
+	public int Setpages(int pagescount)
+	{
+		fileDatamanipulation = new FileDatamanipulation("T_Base_Archive");
+		return fileDatamanipulation.Getpagecount(pagecount);
+	}
 }
 //
 class OtherfilePanel extends JPanel

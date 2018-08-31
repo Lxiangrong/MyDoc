@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Vector;
-
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
@@ -37,10 +36,9 @@ public class FileDatamanipulation
 	}
 	
 	//获取表总记录数
-	public int Getpagecount()
+	public int  Getpagecount(int pagecount)
 	{
-	   int result =0;
-		
+	  
 		if(conectDb!=null)
 		{
 			connection = conectDb.GetConnect();
@@ -53,7 +51,7 @@ public class FileDatamanipulation
 					{
 						while(resultSet.next())
 						{
-							result = resultSet.getInt(1);
+							pagecount = resultSet.getInt(1);
 						}
 					}
 				} catch (SQLException e) {
@@ -66,7 +64,7 @@ public class FileDatamanipulation
 			}
 			
 		}
-		return result;
+		return pagecount;
 	}
 	
 	//关闭数据库相关操作
@@ -119,7 +117,7 @@ public class FileDatamanipulation
 						 {
 							 metaData =resultSet.getMetaData();
 							 numcolumns = metaData.getColumnCount();
-							 System.out.println(numcolumns);
+							 //System.out.println(numcolumns);
 								while(resultSet.next())
 								{
 
@@ -186,8 +184,71 @@ public class FileDatamanipulation
 		return resultes;
 	}
 	
-	
-	
-	
-	
+	//显示指定页数据
+	public void ChoseData(JTable  table,int pagenow)
+	{
+		// 定义相关变量
+		Vector<Vector<Object>> datas = new Vector<>(); 
+		Vector<String> columns = new Vector<>();
+		int columnum =0;
+		String keywords ="id";
+		String columnames="ArchiveDuty ,ArchiveNO ,ArchiveTitle ,ReceiveTime ,PageCount ,SaveLevel ";
+		TableColumn tableColumn;
+		//查询相关指定数据
+		if(conectDb!=null)
+		{
+			connection = conectDb.GetConnect();
+			if(connection!=null)
+			{
+				try 
+				{
+					//获取列
+					columnum =table.getColumnCount();
+					for(int i=0;i<columnum;i++)
+					{
+						columns.add(table.getColumnName(i));
+		
+					}
+					//获取行
+					int pagesize = table.getRowCount(); 
+					callableStatement = connection.prepareCall("{call filecenterfenye(?,?,?,?,?,?)}");
+					callableStatement.setString(1, tablename);
+					callableStatement.setInt(2, pagesize);
+					callableStatement.setInt(3, pagenow);
+					callableStatement.setString(4, columnames);
+					callableStatement.setString(5, keywords);
+					callableStatement.registerOutParameter(6, java.sql.Types.INTEGER);
+					resultSet = callableStatement.executeQuery();
+					if(resultSet!=null)	
+					{
+						while(resultSet.next())
+						{
+
+							   Vector<Object> temp = new Vector<>();
+							   temp.add(false);
+							   for(int i=1;i<columnum;i++)
+							   {
+								   temp.add(resultSet.getString(i));
+							   }
+							   datas.add(temp);
+						}
+					}
+					//设置新表格
+					FileCenterTable fileCenterTable = new FileCenterTable(columns,datas);
+					table.setModel(fileCenterTable);
+					table.getTableHeader().setResizingAllowed(false);
+					table.getTableHeader().setReorderingAllowed(false);	
+					tableColumn = table.getColumnModel().getColumn(3);
+					tableColumn.setPreferredWidth(550);
+					
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}finally
+				{
+					closeall();
+				}
+			}
+		}
+	}	
 }
